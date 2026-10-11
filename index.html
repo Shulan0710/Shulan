@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>中考历史自测与打卡</title>
+    <style>
+        body { font-family: "Microsoft YaHei", sans-serif; background-color: #f4f4f4; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; }
+        .card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .btn { background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .btn:hover { background-color: #218838; }
+        .btn-blue { background-color: #007bff; }
+        .btn-blue:hover { background-color: #0056b3; }
+        .option { display: block; margin: 10px 0; padding: 8px; border: 1px solid #eee; border-radius: 4px; cursor: pointer; }
+        .option:hover { background-color: #f9f9f9; }
+        #result { margin-top: 10px; font-weight: bold; }
+        #checkinStatus { color: #e67e22; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📚 中考历史学习助手</h1>
+
+    <!-- 自测模块 -->
+    <div class="card">
+        <h2>📝 历史自测</h2>
+        <div id="questionArea">
+            <p id="questionText">题目加载中...</p >
+            <div id="optionsArea"></div>
+        </div>
+        <button class="btn btn-blue" onclick="nextQuestion()">下一题</button>
+        <div id="result"></div>
+    </div>
+
+    <!-- 打卡模块 -->
+    <div class="card">
+        <h2>📅 学习打卡</h2>
+        <button class="btn" onclick="doCheckIn()">今日打卡</button>
+        <p id="checkinStatus">今日尚未打卡</p >
+        <p>历史累计打卡天数：<strong id="totalDays">0</strong> 天</p >
+    </div>
+</div>
+
+<script>
+    // --- 1. 自测功能逻辑 ---
+    const historyQuestions = [
+        { question: "中国近代史的开端是什么事件？", options: ["虎门销烟", "鸦片战争", "甲午中日战争", "辛亥革命"], answer: 1 },
+        { question: "中国共产党成立是在哪一年？", options: ["1919年", "1921年", "1927年", "1931年"], answer: 1 },
+        { question: "标志着中国全民族抗战开始的事件是？", options: ["九一八事变", "七七事变", "西安事变", "南京大屠杀"], answer: 1 }
+    ];
+
+    let currentQIndex = 0;
+
+    function loadQuestion() {
+        const q = historyQuestions[currentQIndex];
+        document.getElementById('questionText').innerText = q.question;
+        const optionsArea = document.getElementById('optionsArea');
+        optionsArea.innerHTML = '';
+        document.getElementById('result').innerText = '';
+
+        q.options.forEach((opt, index) => {
+            const div = document.createElement('div');
+            div.className = 'option';
+            div.innerText = `${String.fromCharCode(65 + index)}. ${opt}`;
+            div.onclick = () => checkAnswer(index);
+            optionsArea.appendChild(div);
+        });
+    }
+
+    function checkAnswer(selectedIndex) {
+        const q = historyQuestions[currentQIndex];
+        const resultDiv = document.getElementById('result');
+        if (selectedIndex === q.answer) {
+            resultDiv.innerText = "✅ 回答正确！";
+            resultDiv.style.color = "green";
+        } else {
+            resultDiv.innerText = "❌ 回答错误，正确答案是：" + String.fromCharCode(65 + q.answer);
+            resultDiv.style.color = "red";
+        }
+    }
+
+    function nextQuestion() {
+        currentQIndex = (currentQIndex + 1) % historyQuestions.length;
+        loadQuestion();
+    }
+
+    // --- 2. 打卡功能逻辑 ---
+    function doCheckIn() {
+        const today = new Date().toLocaleDateString();
+        let records = JSON.parse(localStorage.getItem('historyCheckins')) || [];
+        
+        if (!records.includes(today)) {
+            records.push(today);
+            localStorage.setItem('historyCheckins', JSON.stringify(records));
+            updateCheckinUI();
+        } else {
+            alert("今天已经打过卡啦，快去复习历史吧！");
+        }
+    }
+
+    function updateCheckinUI() {
+        const today = new Date().toLocaleDateString();
+        const records = JSON.parse(localStorage.getItem('historyCheckins')) || [];
+        document.getElementById('totalDays').innerText = records.length;
+        
+        if (records.includes(today)) {
+            document.getElementById('checkinStatus').innerText = "✅ 今日已打卡，继续加油！";
+            document.getElementById('checkinStatus').style.color = "green";
+        }
+    }
+
+    // 初始化
+    loadQuestion();
+    updateCheckinUI();
+</script>
+
+</body>
+</html>
