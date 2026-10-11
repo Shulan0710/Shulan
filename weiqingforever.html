@@ -93,7 +93,6 @@
         function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
         window.addEventListener('resize', resize); resize();
 
-        // 音频引擎
         let audioCtx, masterGain, delayNode, feedbackGain;
         function initAudio() {
             if (audioCtx) return;
@@ -123,7 +122,6 @@
         function playSkillSound() { playSound(100, 'sawtooth', 0.5, 0.3); }
         function playMessageSound() { [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => setTimeout(() => playSound(f, 'triangle', 1.5, 0.3), i * 150)); }
 
-        // 游戏核心变量
         let mouse = { x: width / 2, y: height / 2 };
         document.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
 
@@ -140,8 +138,8 @@
 
         for (let i = 0; i < 50; i++) {
             ambientStars.push({ x: Math.random() * width, y: Math.random() * height, size: Math.random() * 2, alpha: Math.random() * 0.5 + 0.1, speed: Math.random() * 0.2 + 0.05 });
-        } 
-        // 最终版语录
+        }
+
         const myPersonalMessages = [
             "辛苦了，请站起来，因为你的屁股扁了。", "先别玩了，喝水，120ml！", "现在马上给苇清发送一条消息。", "不想上班了…喊派出所开枪打了！", "iloveyou！", "(´･ω･`)", "起来休息一下！", "这么无聊的游戏也能坚持玩这么久吗…", "⁄(⁄ ⁄ ⁄ω⁄ ⁄ ⁄)⁄", "伸展四肢。脑袋转一转。", "这游戏都被你玩穿了，快退下吧！", "是不是觉得这游戏很简单？有本事你一次不答错呀！", "快看，你的屏幕上有蚊子！（骗你的）", "你无敌了，这都不去休息，是要卷死谁？", "无论发生什么，我都会一直支持你的。", "你已经做得很棒了，不要对自己太苛刻。", "累了就休息一下，天塌下来还有高个子顶着呢。", "别焦虑，慢慢来，比较快。", "不管世界怎么变，我都在你身边。", "你的鼠标跑得比博尔特还快，平时摸鱼没少练吧？", "被老板发现了没？", "你是不是以为这游戏没有尽头？恭喜你，猜对了！", "要是当年学习有这个劲头，清北都考上了吧？（开玩笑的）"
         ];
@@ -177,8 +175,7 @@
                 alpha: Math.random() * 0.5 + 0.5, pulse: Math.random() * Math.PI, isDark: type === 'dark', isRare: isRare
             });
         }
-        for (let i = 0; i < 30; i++) createEntity();
-
+        for (let i = 0; i < 30; i++) createEntity(); 
         function createExplosion(x, y, color, count = 25) {
             for (let i = 0; i < count; i++) {
                 const angle = Math.random() * Math.PI * 2, speed = Math.random() * 8 + 2;
@@ -200,7 +197,8 @@
                 }
             }
         });
-      function updateBars() {
+
+        function updateBars() {
             let percent = Math.min((healingScore / currentThreshold) * 100, 100);
             document.getElementById('healingBar').style.width = percent + '%';
             document.getElementById('healingText').innerText = `治愈能量 ${Math.floor(percent)}% (累计治愈: ${totalRecords})`;
@@ -292,7 +290,6 @@
             ctx.beginPath(); ctx.moveTo(mouse.x - 3, mouse.y); ctx.quadraticCurveTo(mouse.x - 15, mouse.y - 15, mouse.x - 20, mouse.y - 5); ctx.quadraticCurveTo(mouse.x - 10, mouse.y + 5, mouse.x - 3, mouse.y + 5); ctx.fill();
             ctx.beginPath(); ctx.moveTo(mouse.x + 3, mouse.y); ctx.quadraticCurveTo(mouse.x + 15, mouse.y - 15, mouse.x + 20, mouse.y - 5); ctx.quadraticCurveTo(mouse.x + 10, mouse.y + 5, mouse.x + 3, mouse.y + 5); ctx.fill();
             ctx.shadowBlur = 0;
-            
             let now = Date.now();
             for (let i = entities.length - 1; i >= 0; i--) {
                 let e = entities[i], dx = mouse.x - e.x, dy = mouse.y - e.y;
@@ -382,4 +379,4 @@
         animate();
     </script>
 </body>
-</html>  
+</html>
