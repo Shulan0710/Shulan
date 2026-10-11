@@ -4,34 +4,37 @@
     <meta charset="UTF-8">
     <title>main.js - 正在开发中...</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #0b0f19; font-family: "Microsoft YaHei", sans-serif; user-select: none; }
+        @import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap');
+        body { margin: 0; overflow: hidden; background-color: #0b0f19; font-family: "Microsoft YaHei", "ZCOOL KuaiLe", sans-serif; user-select: none; }
         canvas { display: block; cursor: crosshair; }
-        #healingBarContainer { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); width: 60%; max-width: 400px; height: 12px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; z-index: 50; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
-        #healingBar { width: 0%; height: 100%; background: linear-gradient(90deg, #00ffcc, #ff69b4, #ffeb3b); border-radius: 10px; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 15px #ff69b4; }
-        #healingText { position: absolute; top: 50px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.4); font-size: 12px; z-index: 50; white-space: nowrap; }
-        #levelDisplay { position: absolute; top: 30px; left: 50%; transform: translateX(-50%) translateY(-100%); margin-top: -10px; color: #ffeb3b; font-size: 16px; font-weight: bold; z-index: 50; text-shadow: 0 0 10px rgba(255, 235, 59, 0.6); letter-spacing: 1px; }
-        #skillBarContainer { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 200px; height: 8px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; z-index: 50; }
-        #skillBar { width: 100%; height: 100%; background: #00ffcc; box-shadow: 0 0 10px #00ffcc; transition: width 0.1s linear; }
-        #skillText { position: absolute; bottom: 45px; left: 50%; transform: translateX(-50%); color: #00ffcc; font-size: 12px; font-weight: bold; z-index: 50; text-shadow: 0 0 5px #00ffcc; }
-        #modal { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(15px); display: none; justify-content: center; align-items: center; z-index: 100; opacity: 0; transition: opacity 0.5s ease; }
+        #levelBadge { position: absolute; top: 25px; left: 50%; transform: translateX(-50%); padding: 4px 16px; background: linear-gradient(90deg, rgba(255,105,180,0.2), rgba(0,255,204,0.2)); border: 1px solid rgba(255,105,180,0.5); border-radius: 20px; color: #ffeb3b; font-size: 14px; font-weight: bold; z-index: 50; text-shadow: 0 0 10px rgba(255,235,59,0.6); box-shadow: 0 0 15px rgba(255,105,180,0.3); }
+        #healingBarContainer { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); width: 60%; max-width: 450px; height: 16px; background: rgba(0,0,0,0.4); border-radius: 10px; overflow: hidden; z-index: 50; box-shadow: inset 0 2px 10px rgba(0,0,0,0.8), 0 0 20px rgba(0,255,204,0.1); border: 1px solid rgba(255,255,255,0.1); }
+        #healingBar { width: 0%; height: 100%; background: linear-gradient(90deg, #00ffcc, #ff69b4, #ffeb3b); border-radius: 10px; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 15px #ff69b4, inset 0 2px 5px rgba(255,255,255,0.5); }
+        #healingText { position: absolute; top: 85px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.5); font-size: 12px; z-index: 50; white-space: nowrap; letter-spacing: 1px; }
+        #skillBarContainer { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); width: 220px; height: 10px; background: rgba(0,0,0,0.5); border-radius: 5px; overflow: hidden; z-index: 50; border: 1px solid rgba(0,255,204,0.3); box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
+        #skillBar { width: 100%; height: 100%; background: linear-gradient(90deg, #00b4db, #00ffcc); box-shadow: 0 0 15px #00ffcc; transition: width 0.1s linear; }
+        #skillText { position: absolute; bottom: 58px; left: 50%; transform: translateX(-50%); color: #00ffcc; font-size: 13px; font-weight: bold; z-index: 50; text-shadow: 0 0 10px #00ffcc; letter-spacing: 1px; }
+        #modal { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(15px); display: none; justify-content: center; align-items: center; z-index: 100; opacity: 0; transition: opacity 0.5s ease; }
         #modal.show { display: flex; opacity: 1; }
-        .message-card { background: rgba(30, 38, 64, 0.85); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 24px; padding: 40px 30px; text-align: center; max-width: 600px; width: 85%; box-shadow: 0 25px 60px rgba(0,0,0,0.8), 0 0 50px rgba(0, 255, 204, 0.15); position: relative; }
-        #warmText { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; min-height: 100px; gap: 5px; }
-        .char-span { display: inline-block; font-size: 28px; font-weight: bold; opacity: 0; transform: translateY(-50px) scale(0.5); background: linear-gradient(90deg, #00ffcc, #ff69b4, #ffeb3b, #00ffcc); background-size: 300% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: flowGradient 3s linear infinite; text-shadow: 0 0 20px rgba(255, 105, 180, 0.4); }
+        .message-card { background: linear-gradient(135deg, rgba(40, 50, 80, 0.9), rgba(20, 25, 45, 0.95)); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 30px; padding: 50px 40px; text-align: center; max-width: 650px; width: 85%; box-shadow: 0 30px 80px rgba(0,0,0,0.8), inset 0 0 30px rgba(255,255,255,0.05), 0 0 80px rgba(0,255,204,0.15); position: relative; overflow: hidden; }
+        .message-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%); animation: rotateGlow 10s linear infinite; pointer-events: none; }
+        @keyframes rotateGlow { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #warmText { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; min-height: 100px; gap: 5px; position: relative; z-index: 2; }
+        .char-span { display: inline-block; font-size: 32px; font-weight: bold; opacity: 0; transform: translateY(-50px) scale(0.5); background: linear-gradient(90deg, #00ffcc, #ff69b4, #ffeb3b, #00ffcc); background-size: 300% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: flowGradient 3s linear infinite; text-shadow: 0 0 25px rgba(255, 105, 180, 0.6); }
         @keyframes flowGradient { 0% { background-position: 0% 50%; } 100% { background-position: 300% 50%; } }
         @keyframes jumpIn { 0% { opacity: 0; transform: translateY(-50px) scale(0.5); } 60% { opacity: 1; transform: translateY(10px) scale(1.1); } 80% { transform: translateY(-5px) scale(0.95); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
         @keyframes waveFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         #quizModal { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(20px); display: none; justify-content: center; align-items: center; z-index: 200; opacity: 0; transition: opacity 0.5s ease; }
         #quizModal.show { display: flex; opacity: 1; }
-        .quiz-card { background: linear-gradient(145deg, #1e2640, #141a2e); border: 1px solid #ff69b4; border-radius: 24px; padding: 40px; text-align: center; max-width: 550px; width: 90%; box-shadow: 0 0 60px rgba(255, 105, 180, 0.3); }
-        .quiz-card h2 { color: #ff69b4; font-size: 24px; margin-top: 0; text-shadow: 0 0 10px rgba(255, 105, 180, 0.5); letter-spacing: 2px; }
-        #quizQuestion { color: #fff; font-size: 20px; line-height: 1.6; margin: 25px 0; font-weight: bold; }
-        .quiz-options { display: flex; flex-direction: column; gap: 15px; }
-        .quiz-option { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #d1d9e6; padding: 15px 20px; border-radius: 12px; cursor: pointer; font-size: 16px; transition: all 0.3s ease; text-align: left; }
-        .quiz-option:hover { background: rgba(0, 255, 204, 0.1); border-color: #00ffcc; transform: translateX(5px); }
-        .quiz-result { margin-top: 20px; font-size: 18px; font-weight: bold; line-height: 1.5; min-height: 40px; white-space: pre-wrap; }
-        .result-correct { color: #00ffcc; }
-        .result-wrong { color: #ff4d4d; font-size: 20px; }
+        .quiz-card { background: linear-gradient(145deg, #241b36, #150f22); border: 1px solid #ff69b4; border-radius: 30px; padding: 45px; text-align: center; max-width: 600px; width: 90%; box-shadow: 0 0 80px rgba(255, 105, 180, 0.25), inset 0 0 30px rgba(255,105,180,0.1); }
+        .quiz-card h2 { color: #ff69b4; font-size: 26px; margin-top: 0; text-shadow: 0 0 20px rgba(255, 105, 180, 0.8); letter-spacing: 3px; }
+        #quizQuestion { color: #fff; font-size: 22px; line-height: 1.6; margin: 30px 0; font-weight: bold; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        .quiz-options { display: flex; flex-direction: column; gap: 18px; }
+        .quiz-option { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.15); color: #e0e0e0; padding: 18px 25px; border-radius: 16px; cursor: pointer; font-size: 17px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-align: left; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .quiz-option:hover { background: rgba(255, 105, 180, 0.15); border-color: #ff69b4; transform: translateX(10px) scale(1.02); box-shadow: 0 10px 25px rgba(255,105,180,0.3); color: #fff; }
+        .quiz-result { margin-top: 25px; font-size: 20px; font-weight: bold; line-height: 1.5; min-height: 40px; white-space: pre-wrap; }
+        .result-correct { color: #00ffcc; text-shadow: 0 0 15px #00ffcc; }
+        .result-wrong { color: #ff4d4d; font-size: 22px; text-shadow: 0 0 15px #ff4d4d; }
         #fakeScreen { display: none; width: 100vw; height: 100vh; background-color: #1e1e1e; color: #d4d4d4; font-family: "Consolas", monospace; font-size: 14px; position: absolute; top: 0; left: 0; z-index: 999; }
         .ide-header { background-color: #333; height: 30px; display: flex; align-items: center; padding: 0 10px; }
         .ide-tab { background-color: #1e1e1e; color: #fff; padding: 5px 15px; border-top: 2px solid #007acc; }
@@ -41,12 +44,12 @@
         .ide-content { margin-left: 200px; padding: 20px; }
         .code-line { display: flex; } .line-num { color: #858585; width: 30px; text-align: right; margin-right: 15px; }
         .kw { color: #569cd6; } .str { color: #ce9178; } .fn { color: #dcdcaa; } .cmt { color: #6a9955; }
-        #hintBar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.3); font-size: 13px; z-index: 50; pointer-events: none; }
+        #hintBar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.25); font-size: 13px; z-index: 50; pointer-events: none; letter-spacing: 1px; }
     </style>
 </head>
 <body>
 
-    <div id="levelDisplay">Lv.1 (最高: Lv.1)</div>
+    <div id="levelBadge">Lv.1 (最高: Lv.1)</div>
     <div id="healingBarContainer"><div id="healingBar"></div></div>
     <div id="healingText">治愈能量 0%</div>
     
@@ -84,7 +87,7 @@
     </div>
 
     <script>
-const canvas = document.getElementById('gameCanvas');
+       const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         let width, height;
         function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
@@ -125,16 +128,20 @@ const canvas = document.getElementById('gameCanvas');
         document.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
 
         let entities = [], particles = [], shockwaves = [], floatingTexts = [];
+        let ambientStars = []; 
         let healingScore = 0, gameActive = true, isPaused = false;
         let combo = 0, lastCollectTime = 0, shakeTime = 0;
-        
         let level = 1;
         let maxLevel = parseInt(localStorage.getItem('gameMaxLevel')) || 1;
         let currentThreshold = 100; 
-        let skillCD = 0, SKILL_MAX_CD = 600; // 10秒冷却
+        let skillCD = 0, SKILL_MAX_CD = 600; 
         let messageCount = 0, QUIZ_TRIGGER_AFTER = 3; 
-        let totalRecords = 0;
-// 最终版语录
+        let totalRecords = 0; 
+
+        for (let i = 0; i < 50; i++) {
+            ambientStars.push({ x: Math.random() * width, y: Math.random() * height, size: Math.random() * 2, alpha: Math.random() * 0.5 + 0.1, speed: Math.random() * 0.2 + 0.05 });
+        } 
+        // 最终版语录
         const myPersonalMessages = [
             "辛苦了，请站起来，因为你的屁股扁了。", "先别玩了，喝水，120ml！", "现在马上给苇清发送一条消息。", "不想上班了…喊派出所开枪打了！", "iloveyou！", "(´･ω･`)", "起来休息一下！", "这么无聊的游戏也能坚持玩这么久吗…", "⁄(⁄ ⁄ ⁄ω⁄ ⁄ ⁄)⁄", "伸展四肢。脑袋转一转。", "这游戏都被你玩穿了，快退下吧！", "是不是觉得这游戏很简单？有本事你一次不答错呀！", "快看，你的屏幕上有蚊子！（骗你的）", "你无敌了，这都不去休息，是要卷死谁？", "无论发生什么，我都会一直支持你的。", "你已经做得很棒了，不要对自己太苛刻。", "累了就休息一下，天塌下来还有高个子顶着呢。", "别焦虑，慢慢来，比较快。", "不管世界怎么变，我都在你身边。", "你的鼠标跑得比博尔特还快，平时摸鱼没少练吧？", "被老板发现了没？", "你是不是以为这游戏没有尽头？恭喜你，猜对了！", "要是当年学习有这个劲头，清北都考上了吧？（开玩笑的）"
         ];
@@ -150,7 +157,7 @@ const canvas = document.getElementById('gameCanvas');
 
         const angryEmojis = ["(╯°□°）╯︵ ┻━┻", "(ノಠ益ಠ)ノ", "ヽ(｀⌒´)ノ", "(＃`Д´)", "(￣_￣|||)", "┑(￣Д ￣)┍", "(；一_一)", "(・_・;)"];
 
-        function updateLevelDisplay() { document.getElementById('levelDisplay').innerText = `Lv.${level} (最高: Lv.${maxLevel})`; }
+        function updateLevelDisplay() { document.getElementById('levelBadge').innerText = `Lv.${level} (最高: Lv.${maxLevel})`; }
 
         function createEntity() {
             let r = Math.random(), type = 'star';
@@ -193,14 +200,21 @@ const canvas = document.getElementById('gameCanvas');
                 }
             }
         });
-function updateBars() {
+      function updateBars() {
             let percent = Math.min((healingScore / currentThreshold) * 100, 100);
             document.getElementById('healingBar').style.width = percent + '%';
             document.getElementById('healingText').innerText = `治愈能量 ${Math.floor(percent)}% (累计治愈: ${totalRecords})`;
             let cdPercent = (1 - skillCD / SKILL_MAX_CD) * 100;
             document.getElementById('skillBar').style.width = cdPercent + '%';
-            if (skillCD > 0) { document.getElementById('skillText').innerText = `光波充能中... ${Math.floor(cdPercent)}%`; document.getElementById('skillText').style.color = '#aaa'; }
-            else { document.getElementById('skillText').innerText = '✨ 净化光波就绪（点击释放）'; document.getElementById('skillText').style.color = '#00ffcc'; }
+            if (skillCD > 0) { 
+                document.getElementById('skillText').innerText = `光波充能中... ${Math.floor(cdPercent)}%`; 
+                document.getElementById('skillText').style.color = '#aaa'; 
+                document.getElementById('skillBar').style.boxShadow = 'none';
+            } else { 
+                document.getElementById('skillText').innerText = '✨ 净化光波就绪（点击释放）'; 
+                document.getElementById('skillText').style.color = '#00ffcc'; 
+                document.getElementById('skillBar').style.boxShadow = '0 0 20px #00ffcc'; 
+            }
             updateLevelDisplay();
         }
 
@@ -211,35 +225,79 @@ function updateBars() {
             updateBars();
             ctx.save();
             if (shakeTime > 0) { ctx.translate((Math.random() - 0.5) * shakeTime, (Math.random() - 0.5) * shakeTime); shakeTime -= 0.5; }
+            
             let brightness = Math.min(totalRecords * 0.5, 100);
             let gradient = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, Math.max(width, height));
             gradient.addColorStop(0, `rgb(${brightness*0.8}, ${brightness*0.5}, ${15 + brightness*1.5})`); gradient.addColorStop(1, `rgb(5, 8, 15)`);
             ctx.fillStyle = gradient; ctx.fillRect(0, 0, width, height);
+
+            ctx.fillStyle = '#ffffff';
+            ambientStars.forEach(s => {
+                s.y -= s.speed;
+                if (s.y < 0) { s.y = height; s.x = Math.random() * width; }
+                ctx.globalAlpha = s.alpha;
+                ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2); ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+
             for (let i = shockwaves.length - 1; i >= 0; i--) { let w = shockwaves[i]; w.radius += 20; w.alpha -= 0.03; if (w.alpha <= 0) { shockwaves.splice(i, 1); continue; } ctx.beginPath(); ctx.arc(w.x, w.y, w.radius, 0, Math.PI * 2); ctx.strokeStyle = `rgba(0, 255, 204, ${w.alpha})`; ctx.lineWidth = 4; ctx.stroke(); }
+            
             entities.forEach(e => {
                 e.pulse += 0.03; e.x += e.vx; e.y += e.vy;
                 if (e.type === 'jellyfish' && e.y < -30) { e.y = height + 30; e.x = Math.random() * width; }
                 if (e.type !== 'jellyfish') { if (e.x < 0 || e.x > width) e.vx *= -1; if (e.y < 0 || e.y > height) e.vy *= -1; }
                 let alpha = Math.max(0.1, Math.min(1, e.alpha + Math.sin(e.pulse) * 0.3));
-                ctx.globalAlpha = alpha; ctx.shadowBlur = 15; ctx.shadowColor = e.color;
-                if (e.type === 'jellyfish') { ctx.beginPath(); ctx.arc(e.x, e.y, e.radius, Math.PI, 0); ctx.fillStyle = e.color; ctx.fill(); ctx.beginPath(); ctx.moveTo(e.x - e.radius, e.y); ctx.lineTo(e.x + e.radius, e.y); ctx.strokeStyle = e.color; ctx.lineWidth = 2; ctx.stroke(); for(let j=-2; j<=2; j+=2) { ctx.beginPath(); ctx.moveTo(e.x + j*4, e.y); ctx.quadraticCurveTo(e.x + j*4, e.y + 15, e.x + j*4 + Math.sin(e.pulse)*5, e.y + 30); ctx.stroke(); } }
-                else if (e.type === 'bubble') { ctx.beginPath(); ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2); ctx.fillStyle = 'rgba(0, 255, 204, 0.1)'; ctx.fill(); ctx.beginPath(); ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(0, 255, 204, 0.6)'; ctx.lineWidth = 2; ctx.stroke(); ctx.beginPath(); ctx.arc(e.x - e.radius*0.4, e.y - e.radius*0.4, e.radius*0.2, 0, Math.PI*2); ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.fill(); }
-                else if (e.type === 'heart') { let scale = 1 + Math.sin(e.pulse) * 0.15; ctx.save(); ctx.translate(e.x, e.y); ctx.scale(scale, scale); ctx.beginPath(); ctx.moveTo(0, -5); ctx.bezierCurveTo(-10, -15, -20, 0, 0, 15); ctx.bezierCurveTo(20, 0, 10, -15, 0, -5); ctx.fillStyle = e.color; ctx.fill(); ctx.restore(); }
-                else { ctx.beginPath(); ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2); ctx.fillStyle = e.color; ctx.fill(); if (e.isDark) { ctx.beginPath(); ctx.arc(e.x, e.y, e.radius * 2, 0, Math.PI * 2); ctx.strokeStyle = `rgba(138, 43, 226, ${alpha})`; ctx.lineWidth = 2; ctx.stroke(); } }
+                ctx.globalAlpha = alpha; ctx.shadowBlur = 15; 
+                
+                if (e.type === 'jellyfish') { 
+                    ctx.shadowColor = e.color;
+                    ctx.beginPath(); ctx.arc(e.x, e.y, e.radius, Math.PI, 0); ctx.fillStyle = e.color; ctx.fill(); ctx.beginPath(); ctx.moveTo(e.x - e.radius, e.y); ctx.lineTo(e.x + e.radius, e.y); ctx.strokeStyle = e.color; ctx.lineWidth = 2; ctx.stroke(); for(let j=-2; j<=2; j+=2) { ctx.beginPath(); ctx.moveTo(e.x + j*4, e.y); ctx.quadraticCurveTo(e.x + j*4, e.y + 15, e.x + j*4 + Math.sin(e.pulse)*5, e.y + 30); ctx.stroke(); } 
+                }
+                else if (e.type === 'bubble') { 
+                    ctx.shadowColor = e.color;
+                    ctx.beginPath(); ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2); ctx.fillStyle = 'rgba(0, 255, 204, 0.1)'; ctx.fill(); ctx.beginPath(); ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(0, 255, 204, 0.6)'; ctx.lineWidth = 2; ctx.stroke(); ctx.beginPath(); ctx.arc(e.x - e.radius*0.4, e.y - e.radius*0.4, e.radius*0.2, 0, Math.PI*2); ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.fill(); 
+                }
+                else if (e.type === 'heart') { 
+                    ctx.shadowColor = e.color;
+                    let scale = 1 + Math.sin(e.pulse) * 0.15; ctx.save(); ctx.translate(e.x, e.y); ctx.scale(scale, scale); ctx.beginPath(); ctx.moveTo(0, -5); ctx.bezierCurveTo(-10, -15, -20, 0, 0, 15); ctx.bezierCurveTo(20, 0, 10, -15, 0, -5); ctx.fillStyle = e.color; ctx.fill(); ctx.restore(); 
+                }
+                else { 
+                    if (e.isDark) {
+                        ctx.fillStyle = '#4a0e4e';
+                        ctx.shadowColor = '#ff0000'; ctx.shadowBlur = 15;
+                        ctx.beginPath(); ctx.moveTo(e.x - 4, e.y); ctx.quadraticCurveTo(e.x - 18, e.y - 15, e.x - 25, e.y - 5); ctx.quadraticCurveTo(e.x - 15, e.y + 5, e.x - 4, e.y + 5); ctx.fill();
+                        ctx.beginPath(); ctx.moveTo(e.x + 4, e.y); ctx.quadraticCurveTo(e.x + 18, e.y - 15, e.x + 25, e.y - 5); ctx.quadraticCurveTo(e.x + 15, e.y + 5, e.x + 4, e.y + 5); ctx.fill();
+                        let scale = 1 + Math.sin(e.pulse) * 0.15; ctx.save(); ctx.translate(e.x, e.y); ctx.scale(scale, scale); 
+                        ctx.beginPath(); ctx.moveTo(0, -3); ctx.bezierCurveTo(-8, -12, -15, 0, 0, 12); ctx.bezierCurveTo(15, 0, 8, -12, 0, -3); 
+                        ctx.fillStyle = '#8a2be2'; ctx.fill(); ctx.restore();
+                        ctx.beginPath(); ctx.arc(e.x, e.y, e.radius * 2.5, 0, Math.PI * 2); ctx.strokeStyle = `rgba(255, 0, 0, ${alpha})`; ctx.lineWidth = 2; ctx.stroke(); 
+                    } else {
+                        ctx.shadowColor = e.color;
+                        ctx.beginPath(); ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2); ctx.fillStyle = e.color; ctx.fill(); 
+                        if (e.isRare) { ctx.beginPath(); ctx.arc(e.x, e.y, e.radius * 2, 0, Math.PI * 2); ctx.strokeStyle = `rgba(255, 105, 180, ${alpha*0.5})`; ctx.lineWidth = 1; ctx.stroke(); }
+                    }
+                }
                 ctx.globalAlpha = 1; ctx.shadowBlur = 0;
             });
             for (let i = particles.length - 1; i >= 0; i--) { let p = particles[i]; p.x += p.vx; p.y += p.vy; p.vy += 0.08; p.alpha -= p.decay; if (p.alpha <= 0) particles.splice(i, 1); else { ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fillStyle = p.color; ctx.globalAlpha = p.alpha; ctx.fill(); } }
             ctx.globalAlpha = 1;
             for (let i = floatingTexts.length - 1; i >= 0; i--) { let ft = floatingTexts[i]; ft.y -= 1.5; ft.alpha -= 0.02; if (ft.alpha <= 0) { floatingTexts.splice(i, 1); continue; } ctx.font = 'bold 20px "Microsoft YaHei"'; ctx.fillStyle = ft.color; ctx.globalAlpha = ft.alpha; ctx.textAlign = 'center'; ctx.fillText(ft.text, ft.x, ft.y); }
             ctx.globalAlpha = 1;
-            let glowRadius = 15 + Math.min(combo * 3, 35); 
-            ctx.beginPath(); ctx.arc(mouse.x, mouse.y, glowRadius * 2, 0, Math.PI * 2); ctx.fillStyle = 'rgba(0, 255, 204, 0.05)'; ctx.fill();
+            
+            let glowRadius = 8 + Math.min(combo * 1.5, 15); 
+            ctx.beginPath(); ctx.arc(mouse.x, mouse.y, glowRadius * 1.5, 0, Math.PI * 2); ctx.fillStyle = 'rgba(0, 255, 204, 0.05)'; ctx.fill();
             ctx.beginPath(); ctx.arc(mouse.x, mouse.y, glowRadius, 0, Math.PI * 2); ctx.fillStyle = 'rgba(0, 255, 204, 0.25)'; ctx.fill();
-            ctx.beginPath(); ctx.arc(mouse.x, mouse.y, 6, 0, Math.PI * 2); ctx.fillStyle = '#ffffff'; ctx.shadowColor = '#00ffcc'; ctx.shadowBlur = 25 + combo * 3; ctx.fill(); ctx.shadowBlur = 0;
+            ctx.beginPath(); ctx.arc(mouse.x, mouse.y, 3, 0, Math.PI * 2); ctx.fillStyle = '#ffffff'; ctx.shadowColor = '#00ffcc'; ctx.shadowBlur = 10 + combo * 1.5; ctx.fill(); 
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)'; ctx.shadowColor = '#ffffff'; ctx.shadowBlur = 10;
+            ctx.beginPath(); ctx.moveTo(mouse.x - 3, mouse.y); ctx.quadraticCurveTo(mouse.x - 15, mouse.y - 15, mouse.x - 20, mouse.y - 5); ctx.quadraticCurveTo(mouse.x - 10, mouse.y + 5, mouse.x - 3, mouse.y + 5); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(mouse.x + 3, mouse.y); ctx.quadraticCurveTo(mouse.x + 15, mouse.y - 15, mouse.x + 20, mouse.y - 5); ctx.quadraticCurveTo(mouse.x + 10, mouse.y + 5, mouse.x + 3, mouse.y + 5); ctx.fill();
+            ctx.shadowBlur = 0;
+            
             let now = Date.now();
             for (let i = entities.length - 1; i >= 0; i--) {
                 let e = entities[i], dx = mouse.x - e.x, dy = mouse.y - e.y;
-                if (Math.sqrt(dx*dx + dy*dy) < 40 + combo) { 
+                let collisionRadius = (e.type === 'dark') ? 20 : (40 + combo);
+                if (Math.sqrt(dx*dx + dy*dy) < collisionRadius) { 
                     entities.splice(i, 1); 
                     if (e.type === 'dark') { playDarkSound(); shakeTime = 12; combo = 0; healingScore = Math.max(0, healingScore - 10); totalRecords = Math.max(0, totalRecords - 10); createExplosion(e.x, e.y, '#ff0000', 15); }
                     else if (e.type === 'heart') { playJellyfishSound(); createExplosion(e.x, e.y, '#ff3366', 40); let randomAction = Math.random() < 0.5 ? 'heal' : 'quiz'; if (randomAction === 'heal') { let points = 50; healingScore += points; totalRecords += points; floatingTexts.push({x: e.x, y: e.y, text: `+${points} 治愈值`, alpha: 1, color: '#ff69b4'}); createEntity(); } else { triggerQuiz(); return; } }
@@ -248,10 +306,10 @@ function updateBars() {
                     if (healingScore >= currentThreshold) { 
                         level++;
                         if (level > maxLevel) { maxLevel = level; localStorage.setItem('gameMaxLevel', maxLevel); }
-                        SKILL_MAX_CD = Math.min(600 + (level - 1) * 120, 1200); // 每级冷却加2秒
-                        currentThreshold = Math.floor(100 * Math.pow(1.2, level - 1)); // 升级所需进度提升20%
+                        SKILL_MAX_CD = Math.min(600 + (level - 1) * 120, 1200); 
+                        currentThreshold = Math.floor(100 * Math.pow(1.2, level - 1)); 
                         floatingTexts.push({x: width/2, y: height/2, text: `升级！ Lv.${level}`, alpha: 1, color: '#ffeb3b'});
-                        playSound(1046.50, 'square', 1.0, 0.5); // 升级音效
+                        playSound(1046.50, 'square', 1.0, 0.5); 
                         
                         if (messageCount >= QUIZ_TRIGGER_AFTER) { triggerQuiz(); return; } 
                         else { playMessageSound(); triggerWarmMessage(); messageCount++; healingScore = 0; combo = 0; }
@@ -298,8 +356,8 @@ function updateBars() {
             const textContainer = document.getElementById('warmText'), modal = document.getElementById('modal');
             textContainer.innerHTML = ''; modal.style.display = 'flex'; void modal.offsetWidth; modal.classList.add('show');
             const chars = randomMsg.split('');
-            chars.forEach((char, index) => { const span = document.createElement('span'); span.className = 'char-span'; span.innerText = char; const centerIndex = Math.floor(chars.length / 2); const delay = Math.abs(index - centerIndex) * 80; span.style.animation = `jumpIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) ${delay}ms forwards, waveFloat 2s ease-in-out ${delay + 600}ms infinite`; textContainer.appendChild(span); });
-            const totalAnimTime = (chars.length / 2) * 80 + 600 + 4000;
+            chars.forEach((char, index) => { const span = document.createElement('span'); span.className = 'char-span'; span.innerText = char; const centerIndex = Math.floor(chars.length / 2); const delay = Math.abs(index - centerIndex) * 20; span.style.animation = `jumpIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) ${delay}ms forwards, waveFloat 2s ease-in-out ${delay + 600}ms infinite`; textContainer.appendChild(span); });
+            const totalAnimTime = 2000;
             setTimeout(() => { if (modal.classList.contains('show')) closeModal(); }, totalAnimTime);
         }
 
@@ -315,7 +373,7 @@ function updateBars() {
                 canvas.style.display = isHidden ? 'none' : 'block'; document.getElementById('hintBar').style.display = isHidden ? 'none' : 'block';
                 document.getElementById('healingBarContainer').style.display = isHidden ? 'none' : 'block'; document.getElementById('healingText').style.display = isHidden ? 'none' : 'block';
                 document.getElementById('skillBarContainer').style.display = isHidden ? 'none' : 'block'; document.getElementById('skillText').style.display = isHidden ? 'none' : 'block';
-                document.getElementById('levelDisplay').style.display = isHidden ? 'none' : 'block';
+                document.getElementById('levelBadge').style.display = isHidden ? 'none' : 'block';
                 document.getElementById('fakeScreen').style.display = isHidden ? 'block' : 'none';
                 document.getElementById('modal').style.display = 'none'; document.getElementById('quizModal').style.display = 'none';
                 isPaused = isHidden; if (!isHidden && gameActive) animate();
@@ -324,4 +382,4 @@ function updateBars() {
         animate();
     </script>
 </body>
-</html>
+</html>  
